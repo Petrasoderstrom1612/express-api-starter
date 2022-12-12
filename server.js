@@ -31,15 +31,6 @@ const User = mongoose.model('User', {
   }
 });
 
-const authenticateUser = async (req, res, next) =>{ //see row 67
-  const user = await User.findOne({accessToken:req.header('Authorization')})
-  if(user){
-    req.user = user;
-    next()
-  } else {
-    res.status(401).json({loggedOut: true});
-  }
-}
 
 const port = process.env.PORT || 8080;
 const app = express();
@@ -64,7 +55,17 @@ app.post('/users', async (req, res) =>{
   }
 })
 
-app.get('/secrets', authenticateUser) //see row 34
+const authenticateUser = async (req, res, next) =>{ 
+  const user = await User.findOne({accessToken:req.header('Authorization')})
+  if(user){
+    req.user = user;
+    next()
+  } else {
+    res.status(401).json({loggedOut: true});
+  }
+}
+
+app.get('/secrets', authenticateUser) 
 
 app.get("/secrets", (req, res) => {
   res.json({secret: 'This is a super secret message.'})
